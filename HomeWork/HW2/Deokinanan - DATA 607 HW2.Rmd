@@ -47,7 +47,7 @@ Because the participants are devoted fans, I minimized bias by changing from a '
 
 The following is a screenshot of what the survey looks like which allows participants to drag and drop their rankings for each attribute.
 
-![Screenshot](C:\Users\Deokinanan\Desktop\2019 -2021 CUNY SPS\SPRING 2019\DATA 607\Week 2\screenshot.jpg)
+![Screenshot](path\to\screenshot.jpg)
 
 
 
@@ -103,10 +103,6 @@ Now, it is time to connect R to MySQL database.
 ```{r message=FALSE, warning=FALSE}
 # Loading the required library 
 library(RMySQL)
-```
-
-```{r include=FALSE}
-db<- dbConnect(MySQL(), user = 'root', password='GUYANA01', dbname = 'shineeranking', host = 'localhost', port=3306)
 ```
 
 ```{r eval=FALSE}
