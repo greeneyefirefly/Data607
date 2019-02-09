@@ -1,0 +1,96 @@
+---
+title: "CUNY SPS MSDS Data 607 Home Work #1"
+author: "Samantha Deokinanan"
+date: "February 3, 2019"
+output:
+  html_document: default
+---
+
+### Loading Data into a Data Frame  
+
+***
+#### Retrieving the Dataset
+
+The Mushrooms Dataset was retrieve from https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/ on 29th January, 2019 and was then save in my Github as *mushroom* for this home work assignment.
+
+Sources: 
+    (a) Mushroom records drawn from The Audubon Society Field Guide to North
+        American Mushrooms (1981). G. H. Lincoff (Pres.), New York: Alfred
+        A. Knopf
+    (b) Donor: Jeff Schlimmer (Jeffrey.Schlimmer @ a.gp.cs.cmu.edu)
+    (c) Date: 27 April 1987
+
+
+```{r}
+# Retrieving the dataset from my Github
+theURL<-"https://raw.githubusercontent.com/greeneyefirefly/mushrooms/master/dataset.csv"
+mushroom<-read.csv (file = theURL, header = FALSE, sep = ",")
+
+# A preview of the mushroom dataset
+head(mushroom)
+```
+
+***
+##### Summary of the Dataset
+
+This dataset includes 23 species of gilled mushrooms in the Agaricus and Lepiota Family, with indicators as edible, poisonous, etc. The dataset consist of 8124 instances with 2480 missing value (denoted by "?", found in the stalk-root variable). There are 23 variables, and their categories are listed below:
+
+     1. classes:                  edible=e, poisonous=p
+     2. cap-shape:                bell=b,conical=c,convex=x,flat=f,knobbed=k,sunken=s
+     3. cap-surface:              fibrous=f,grooves=g,scaly=y,smooth=s
+     4. cap-color:                brown=n,buff=b,cinnamon=c,gray=g,green=r, pink=p,purple=u,red=e,white=w,yellow=y
+     5. bruises?:                 bruises=t,no=f
+     6. odor:                     almond=a,anise=l,creosote=c,fishy=y,foul=f, musty=m,none=n,pungent=p,spicy=s
+     7. gill-attachment:          attached=a,descending=d,free=f,notched=n
+     8. gill-spacing:             close=c,crowded=w,distant=d
+     9. gill-size:                broad=b,narrow=n
+    10. gill-color:               black=k,brown=n,buff=b,chocolate=h,gray=g,green=r,orange=o,pink=p,purple=u,red=e,white=w,yellow=y
+    11. stalk-shape:              enlarging=e,tapering=t
+    12. stalk-root:               bulbous=b,club=c,cup=u,equal=e, rhizomorphs=z,rooted=r,missing=?
+    13. stalk-surface-above-ring: fibrous=f,scaly=y,silky=k,smooth=s
+    14. stalk-surface-below-ring: fibrous=f,scaly=y,silky=k,smooth=s
+    15. stalk-color-above-ring:   brown=n,buff=b,cinnamon=c,gray=g,orange=o,pink=p,red=e,white=w,yellow=y
+    16. stalk-color-below-ring:   brown=n,buff=b,cinnamon=c,gray=g,orange=o,pink=p,red=e,white=w,yellow=y
+    17. veil-type:                partial=p,universal=u
+    18. veil-color:               brown=n,orange=o,white=w,yellow=y
+    19. ring-number:              none=n,one=o,two=t
+    20. ring-type:                cobwebby=c,evanescent=e,flaring=f,large=l,none=n,pendant=p,sheathing=s,zone=z
+    21. spore-print-color:        black=k,brown=n,buff=b,chocolate=h,green=r,orange=o,purple=u,white=w,yellow=y
+    22. population:               abundant=a,clustered=c,numerous=n,scattered=s,several=v,solitary=y
+    23. habitat:                  grasses=g,leaves=l,meadows=m,paths=p,urban=u,waste=w,woods=d
+
+***
+##### Task
+
+The task is to create a new data frame with a subset of the columns. The variables selected are classes, cap-shape, bruises?, gill-size, gill-color, stalk-root and ring-type.
+
+```{r}
+# Creating a subset data frame with the selected variables
+newMushroom<-mushroom[,c(1,2,5,9,10,12,20)]
+
+# Adding column names
+colnames(newMushroom) <- c("classes", "cap-shape", "bruises", "gill-size", "gill-color", "stalk-root", "ring-type")
+
+# A preview of how the new data frame looks like.
+head(newMushroom)
+```
+
+The following then recodes the abbreviations into the actual word.
+
+```{r}
+# Loading the dplyr library with useful code to perform the transformation.
+library(dplyr)
+
+# Recode() can replace character values by their name.
+newMushroom$classes<-recode(newMushroom$classes, e="edible", p="poisonous")
+newMushroom$`cap-shape`<-recode(newMushroom$`cap-shape`, b="bell", c="conical", x="convex", f="flat", k="knobbed", s="sunken")
+newMushroom$bruises<-recode(newMushroom$bruises, t="bruises", f="none")
+newMushroom$`gill-size`<-recode(newMushroom$`gill-size`, b="broad", n="narrow")
+newMushroom$`gill-color`<-recode(newMushroom$`gill-color`, k="black", n="brown", b="buff", h="chocolate", g="gray", r="green", o="orange", p="pink", u="purple", e="red", w="white", y="yellow")
+newMushroom$`stalk-root`<-recode(newMushroom$`stalk-root`, b="bulbous", c="club", u="cup", e="equal", z="rhizomorphs", r="rooted", .default="missing")
+newMushroom$`ring-type`<-recode(newMushroom$`ring-type`, c="cobwebby", e="evanescent", f="flaring", l="large", n="none", p="pendant", s="sheathing", z="zone")
+
+# Here is how the transformed data frame now looks like.
+head(newMushroom)
+```
+
