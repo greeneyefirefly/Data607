@@ -1,0 +1,215 @@
+---
+title: 'CUNY MSDS DATA 607 Assignment # 2'
+author: "Samantha Deokinanan"
+date: "February 10, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    toc_depth: 5
+---
+
+***
+#### Background {.tabset .tabset-fade .tabset.-pills}
+##### Twin on Task
+The task of the assignment was to have at least six individuals rate five movies. However, it was not very suitable in my case as those I know very rarely watch movies, so little that they have never seen Black Panther! Yes, this makes me the cool friend. Therefore, I opt for the one thing that we all like watching, that is Korean Popular Music Videos.
+
+***  
+##### Overview
+K-Pop has become quite a phenomenon in Western society over the last decade. SHINee is one of distinguished boy bands that continues to greatly influence the trends of K-Pop music industry. They debuted as a 5-member group in 2008, and since then has release over 35 music videos.
+
+This assignment seeks to investigate what is the most appealing attribute to fans about 5 random SHINee music videos, and which video has an equal distribution of the attributes based on fans' rankings.
+
+***  
+##### MVs
+The five music videos that were selected from SHINee's discography are: 
+```{r echo=FALSE, results="asis"}
+Music_Videos = c("Sherlock", "Everybody","View","Tell Me What To Do", "Good Evening")
+mvs<-data.frame(Music_Videos, Released_Date =c(2012,2013,2015,2016,2018))
+knitr::kable(mvs)
+```
+
+***
+#### Methodology {.tabset .tabset-fade .tabset.-pills}
+##### The Attributes
+The music videos were ranked based on these attributes:
+
+1. Visual - the aspects of the music video that appeals strictly to the sense of sight.
+2. Theme/Story - how captivating the themes of the music video was depicted or how clear the music video told a story.
+3. Performance - how compelling the band/actors were at expressing the concept of the music video.
+
+***  
+##### Survey
+
+Utilizing the influence of my social media profile with over 1000 followers, on February 5th, 2019 from 9 AM to 2 PM EST, I announced and made available a link to a *SurveyMonkey* form that allows my followers, nearly 85% of whom are fans of SHINee, to participate in this survey. 
+
+Because the participants are devoted fans, I minimized bias by changing from a 'rating scale' to a 'ranking scale', where the participants are asked to rank the music videos from 1st place to 5th place over 3 attributes. For example, if someone ranks a specific attribute of the music video as **1**, both the ranking spot and music video can no longer be used for the remaining four ranks in this attribute category. A rank in the first spot (**1**) means it is the best for the specific attribute than the others. 
+
+The following is a screenshot of what the survey looks like which allows participants to drag and drop their rankings for each attribute.
+
+![Screenshot](C:\Users\Deokinanan\Desktop\2019 -2021 CUNY SPS\SPRING 2019\DATA 607\Week 2\screenshot.jpg)
+
+
+
+***
+#### The Assignment Task {.tabset .tabset-fade .tabset.-pills}
+##### Data Summary
+After the allotted time for responses elapsed, the survey was closed. There were a total of 50 participants. The .csv file was exported from *SurveyMonkey*, and cleaned to be uploaded as a database on MySQL.
+
+***
+##### SQL Database
+The following code created the database on MySQL.
+```{sql eval=FALSE}
+-- Samantha Deokinanan
+-- CUNY MSDS DATA 607 Assignment 2
+-- Database: SHINee Ranking 2/5/2019
+-- Host: localhost    
+-- ------------------------------------------------------
+
+-- Table structure for contengency table 'SHINeeRanking' 
+DROP TABLE IF EXISTS `SHINeeRanking`;
+CREATE TABLE `SHINeeRanking` (
+  `ID` integer NOT NULL,
+  `mvs` varchar(100) NOT NULL,
+  `first_visual` varchar(100) NOT NULL,
+  `second_visual` varchar(100) NOT NULL,
+  `third_visual` varchar(100) NOT NULL,
+  `forth_visual` varchar(100) NOT NULL,
+  `fifth_visual` varchar(100) NOT NULL,
+  `first_theme_story` varchar(100) NOT NULL,
+  `second_theme_story` varchar(100) NOT NULL,
+  `third_theme_story` varchar(100) NOT NULL,
+  `forth_theme_story` varchar(100) NOT NULL,
+  `fifth_theme_story` varchar(100) NOT NULL,
+  `first_performance` varchar(100) NOT NULL,
+  `second_performance` varchar(100) NOT NULL,
+  `third_performance` varchar(100) NOT NULL,
+  `forth_performance` varchar(100) NOT NULL,
+  `fifth_performance` varchar(100) NOT NULL,
+   PRIMARY KEY (`ID`)
+  );
+
+-- Dumping data for table `SHINeeRanking`
+LOAD DATA INFILE 'path\to\hw2dataset_SHINeeRanking.csv'
+INTO TABLE SHINeeRanking
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+```
+***
+
+##### Connect to R
+Now, it is time to connect R to MySQL database.
+```{r message=FALSE, warning=FALSE}
+# Loading the required library 
+library(RMySQL)
+```
+
+```{r include=FALSE}
+db<- dbConnect(MySQL(), user = 'root', password='GUYANA01', dbname = 'shineeranking', host = 'localhost', port=3306)
+```
+
+```{r eval=FALSE}
+# Connecting to MySQL Sever
+db<- dbConnect(MySQL(), user = 'root', password='', dbname = 'shineeranking', host = 'localhost', port=3306)
+```
+
+``` {r}
+# Retrieving the database and make it avaliable in RStudio
+retrieved<- dbSendQuery(db, "SELECT * FROM shineeranking")
+SHINeeRanking<- fetch(retrieved, n = -1)
+SHINeeRanking<- SHINeeRanking[, -1]
+```
+
+```{r}
+# The database of the music video ranking
+library(kableExtra)
+kable(SHINeeRanking) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***  
+##### Format for Use
+
+Using `SHINeeRanking`, the database was separated based on the attributes and converted to matrix form for analysis.
+```{r}
+# Visual Ranking
+visual<-SHINeeRanking[,c(2:6)]
+row.names(visual)<-SHINeeRanking$mvs
+colnames(visual)<-c("first", "second", "third", "forth", "fifth")
+visualm<-data.matrix(visual)
+
+# Theme/Story Ranking
+theme_story<-SHINeeRanking[,c(7:11)]
+row.names(theme_story)<-SHINeeRanking$mvs
+colnames(theme_story)<-c("first", "second", "third", "forth", "fifth")
+theme_storym<-data.matrix(theme_story)
+
+# Performance Ranking
+performance<-SHINeeRanking[,c(12:16)]
+row.names(performance)<-SHINeeRanking$mvs
+colnames(performance)<-c("first", "second", "third", "forth", "fifth")
+performancem<-data.matrix(performance)
+```
+***  
+
+#### Results {.tabset .tabset-fade .tabset.-pills} 
+##### Statistics
+I wanted to visualize the nature of the dependence of how each music video rank among a specific attribute. Therefore, chi-squared statistic were used, where this test evaluates whether there is a significant association between the categories.
+
+* Null hypothesis (H0): the row and the column variables of the contingency table are independent.  
+* Alternative hypothesis (H1): row and column variables are dependent.
+
+For visualization, `corrplot()` was used. Positive association are displayed in white and negative association in black color. Color intensity and the size of the circle are proportional to the correlation coefficients.
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(corrplot)
+```
+
+***
+
+##### Visual
+Firstly, for *Visual*, the test revealed that the variables are statistically associated, *p-value* < 0. The most contributing cells can be shown below. 
+
+The music videos with the frequent rankings of first place for *Visual* are *Tell Me What To Do* and *Good Evening*. While looking at the music video *Sherlock*, it is clear that it wasn't commonly ranked as *first* or *second* for *Visual*. 
+
+```{r}
+chi_visual<-chisq.test(visualm)
+chi_visual
+
+corrplot(chi_visual$residuals, col = c("black", "white"), bg = "lightblue", is.cor = FALSE, sig.level = .05)
+```
+
+***
+
+##### Theme/Story
+Next, the test revealed that the variables for Theme/Story are also statistically associated, *p-value* < 0. The most contributing cells can be shown below by the plot. The music video with the most association ranking of first place for the best theme or story was *Good Evening*. While *Everybody* was frequently ranked fifth place among the music videos.
+
+```{r}
+chi_theme<-chisq.test(theme_storym)
+chi_theme
+
+corrplot(chi_theme$residuals, col = c("black", "white"), bg = "lightblue", is.cor = FALSE, sig.level = .05)
+```
+
+***
+
+##### Performance
+Lastly, the chi-squared test revealed that the variables are statistically associated, *p-value* < 0. The most contributing cells can be shown below. The *Performance* attribute of the music videos were mostly associated with *Sherlock* and *Everybody*. While it is clear that *Tell Me What To Do* and *Good Evening* were commonly associated as *fifth* place.
+
+```{r}
+chi_pref<-chisq.test(performancem)
+chi_pref
+
+corrplot(chi_pref$residuals, col = c("black", "white"), bg = "lightblue", is.cor = FALSE, sig.level = .05)
+```
+
+***
+#### Conclusion
+In conclusion, the music video that does not appear to be frequently ranked as outstanding to have one of the three attributes was *View*. It was close to a even rank on *Visual*, ranked often as *second* and *third* for *Theme/Story*, and often ranked *third* for *Performance*. This may suggest that fans believe that *View* is well-balanced on *Visual*, *Theme/Story* and *Performance* with no attribute being distinctively impressive over the next. Whereas, *Good Evening* was mostly associated with both *Visual* and *Theme/Story*, and *Sherlock* was mostly associated with the *Performance* attribute.
+
+
+
+
+
+
