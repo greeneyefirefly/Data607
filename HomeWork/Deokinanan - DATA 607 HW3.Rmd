@@ -1,0 +1,207 @@
+---
+title: 'CUNY MSDS DATA 607 Assignment # 3'
+author: "Samantha Deokinanan"
+date: "February 17, 2019"
+output: 
+  rmdformats::readthedown:
+    highlight: kate
+    toc_depth: 4
+---
+***
+The package needed to complete this assignment is listed below:
+```{r}
+library(stringr)
+```
+
+***
+#### Problem 3 {.tabset .tabset-fade .tabset.-pills}
+##### Question
+
+Copy the introductory example. The vector `name` stores the extracted names.
+
+Loading the raw data
+```{r}
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+```
+
+Extracting only the names. The pattern is any alphabetic characters (names and titles), including any '.', and ',' that appears in the names for at least a length of 2.
+
+```{r}
+name <- unlist(str_extract_all(raw.data, "[[A-z]., ]{2,}"))
+```
+
+***
+##### Part A
+Use the tools of this chapter to rearrange the vector so that all elements conform to the standard `first_name` `last_name`.
+
+```{r}
+# Initializing the empty vector to house the formatted names
+name_FLformat <- vector()
+
+# The following function searches for names separated by ',' which usually indicates last name followed by first name. Therefore, this swaps last portion with first.
+for (i in 1:6) {
+  a <- str_trim(unlist(str_split(name[i], ",")))
+  if (length(a) > 1) {
+    name_FLformat[i] <- str_c(a[2], a[1], sep=" ")
+  }
+  else {
+    name_FLformat[i] <- a
+  }
+}
+
+# Removing any titles before separating into first and last name
+name_FLformat<- str_replace(name_FLformat, "Dr. |Rev. ", "")
+name_FLformat = str_split(name_FLformat, ' ')
+first_name = sapply(name_FLformat, function(x) x[1])
+last_name = sapply(name_FLformat, function(x) x[length(x)])
+nameFL <- data.frame(first_name,last_name)
+nameFL
+```
+
+Note that, it is assumed *C.* is Burns' actual first name, which was not given in its entirety, and not *Montgomery*.
+
+***
+##### Part B
+Construct a logical vector indicating whether a character has a title.
+
+```{r}
+# The logical vector is
+has.a.title <- str_detect(name,"[A-z]{2,3}\\.")
+has.a.title
+```
+
+The following identifies who has a title. 
+```{r}
+name[has.a.title]
+```
+It shows that there are two the titles held by the people, these are *Rev.* and *Dr.*
+
+***
+##### Part C
+Construct a logical vector indicating whether a character has a second name.
+```{r}
+# The logical vector is
+has.a.second.name <- str_detect(name," [A-z]{1}\\.")
+```
+
+The following identifies who has a second name. 
+```{r}
+name_FLformat[has.a.second.name]
+```
+It shows that there is one person with a second name, and it is for *C. Montgomery Burns*.
+
+***
+#### Problem 4 {.tabset .tabset-fade .tabset.-pills}
+##### Question
+Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+(a) [0-9]+\\\\$ 
+(b) \\\\b[a-z]{1,4}\\\\b 
+(c) .*?\\\\.txt$ 
+(d) \\\\d{2}/\\\\d{2}/\\\\d{4} 
+(e) <(.+?)>.+?</\\\\1>
+
+***
+##### Part A
+[0-9]+\\\\$
+
+This is a type of regular expression that looks for any length of only numeric string, indicated by "[0-9]", that is immediately followed by a dollar sign, indicated by "+\\\\$".
+
+Some examples are shown below:
+```{r}
+pattern <- "[0-9]+\\$"
+examples <- c("525544$", "sjdf2835ry2$se43", "247$07823", "35c$2078", "gnsgrj")
+results <- unlist(str_extract_all(examples, pattern))
+results
+```
+
+In these examples, we see the immediate strings of numbers followed by a dollar sign, no matter what other characters were trailing and leading.
+
+***
+##### Part B
+\\\\b[a-z]{1,4}\\\\b
+
+This is a type of regular expression that looks for a string which contains only lower case alphabetic characters, indicated by "[a-z]", with a maximum length of 4, indicated by "{1,4}", which must have word edges at both the beginning and end, indicated by "\\\\b". 
+
+Some examples are shown below:
+```{r}
+pattern <- "\\b[a-z]{1,4}\\b"
+examples <- c("Deokinanan", "<3", "DATA607", "CUS", "$$data", "is", "fun !")
+results <- unlist(str_extract_all(examples, pattern))
+results
+```
+
+In these examples, we see the strings of lower case letters with no more than 4 letters and have word edges. Note the original beginning of "\$$data" which resulted in "data", and ending of "fun !" which gives "fun" since " !" is not a part of the word.
+
+***
+##### Part C
+.*?\\\\.txt$
+
+This is a type of regular expression that looks for any length of numeric, symbols and alphabetic characters,indicated by ".*?", as long as it ends with a _".txt"_ only, indicated by "\\\\.txt$".
+
+Some examples are shown below:
+```{r}
+pattern <- ".*?\\.txt$"
+examples <- c("1234.txtsum", "haHAha$...txt", "txt", "name.txt5u.txt")
+results <- unlist(str_extract_all(examples, pattern))
+results
+```
+
+In these examples, we see the immediate strings of characters that is followed by a _.txt_ only at the end are returned.
+
+***
+##### Part D
+\\\\d{2}/\\\\d{2}/\\\\d{4}
+
+This is a type of regular expression that conforms to the patterns of only numeric values of length 2, indicated by "\\\\d{2}", a forward slash ("/"), 2 more numbers, another forward slash, then ends with four numbers.
+
+Some examples are shown below:
+```{r}
+pattern <- "\\d{2}/\\d{2}/\\d{4}"
+examples <- c("sd525/05/2008786$", "sj28/3p5/1242$se43", "24/70/9889hh2", "gn/sg/rjhg")
+results <- unlist(str_extract_all(examples, pattern))
+results
+```
+
+In these examples, we see the strings of numbers that matched the length of numeric values followed by the forward slash as the pattern indicated, without including any other characters that were trailing or leading.
+
+
+***
+##### Part E
+<(.+?)>.+?</\\\\1>
+
+This is a type of regular expression that seeks for any number, symbol, and alphabetic characters of at least length 1, indicated by "(.+?)", that must be enclosed by "<" and ">", followed by any number, symbol, and alphabetic characters again, and must ends with a forward slash and the same strings from the enclosed "<" and ">" from the beginning, also enclosed again by "<" and ">". 
+
+Some examples are shown below:
+```{r}
+pattern <- "<(.+?)>.+?</\\1>"
+examples <- c("qwerty<exo>1010$<exo>626", "qwerty<exo>1010$tem</exo>626", "<$$RDD>sgh453</$$RDD>", "3<52>078</4532>")
+results <- unlist(str_extract_all(examples, pattern))
+results
+```
+
+In these examples, we see the strings of characters enclosed by "< >", followed by more characters, then a forward slash and the same enclosed string are returned, no matter what characters were trailing or leading.
+
+***
+#### Problem 9 {.tabset .tabset-fade .tabset.-pills}
+##### Question
+
+The following code hides a secret message. Crack it with R and regular expressions. Hint: Some of the characters are more revealing than others! 
+
+```{r eval=FALSE}
+clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+```
+
+##### Answer
+Upon visual inspection, I immediately spotted the upper case letters, and as I continued to trail these, I was able to see the message without the need of R. I'm often told that I am able to see certain details many cannot as both a data analyst and an artist, so I felt proud.
+
+However, while I knew I needed the upper case letters, and my brain could read the results coherently enough as separate words, a standard English sentence would have a space between two words. I wasn't sure if that was the case with this problem, but from past home works, there tends to be one which was the actual challenge, so I assume that was the case here. I looked for any other pattern between strings where you would expect a space. For instance, I looked at the strings between the ending of "S" in *CONGRATULATIONS* to "Y" in *YOU* but specific combination of letters or numbers don't always appear in between every other supposed breaks, nor with a recognizable pattern. But I did find that "." was, therefore, "." is used as the separator to make the message legible. 
+
+It can be solved as follows:
+```{r}
+message <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+message <- unlist(str_extract_all(message, "[[A-Z].]{1,}"))
+message <- str_replace_all(paste(message, collapse = ''), "[.]", " ")
+message
+```
+
