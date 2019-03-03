@@ -1,0 +1,38 @@
+Table 6.17 Peanut Data,,,,,,,
+Batch 1,,,,,,,
+,,,,Variety,,,
+,,,,Runner,Spanish,Valencia,Virgina
+,Location,Georgia,Yield,195.3,203,193.5,196.4
+,,,kernels weight,153.1,156.8,164.5,158.3
+,,,seed size,51.4,49.8,57.8,53.1
+,,,,,,,
+,,Texas,Yield,189.7,202.7,201.5,195.5
+,,,kernels weight,139.5,166.1,166.8,157.4
+,,,seed size,55.5,60.4,65,57.8
+,,,,,,,
+,,Alabama,Yield,181.8,204.6,198.8,195.7
+,,,kernels weight,139.6,151.7,166.1,161.9
+,,,seed size,56.4,57.4,63.5,57.2
+,,,,,,,
+,,Florida,Yield,185.2,204.5,197.4,195.9
+,,,kernels weight,158.2,159.8,165.2,157.2
+,,,seed size,53.7,57.1,60.9,56.8
+,,,,,,,
+Batch 2,,,,,,,
+,,,,Variety,,,
+,,,,Runner,Spanish,Valencia,Virgina
+,Location,Georgia,Yield,194.3,195.9,187,194.2
+,,,kernels weight,167.7,166,165.1,162.4
+,,,seed size,53.7,45.8,58.6,48.9
+,,,,,,,
+,,Texas,Yield,180.4,197.6,200,192.3
+,,,kernels weight,121.1,161.8,173.8,153.5
+,,,seed size,44.4,54.1,67.2,58.7
+,,,,,,,
+,,Alabama,Yield,186.7,194.5,197.4,193.7
+,,,kernels weight,157.5,157.3,168.8,159.5
+,,,seed size,49.6,54.1,58.7,54.8
+,,,,,,,
+,,Florida,Yield,193.7,198.4,197.5,193.3
+,,,kernels weight,146.5,160.3,169.4,156.7
+,,,seed size,52.5,57.4,59.8,57.4
