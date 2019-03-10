@@ -1,0 +1,407 @@
+---
+title: "CUNY MSDS Data 607 Project #2"
+author: "Samantha Deokinanan"
+date: "10th March, 2019"
+output:
+  html_document:
+    theme: journal
+    toc: TRUE
+    toc_float: TRUE  
+    toc_depth: 4
+---
+
+***
+# Overview 
+
+In this project, three data sets that were considered untidy were put through tidying and transformation using R. In a tidy data set, each variable and observation is saved as its own column and row respectively. These are the main packages use for data wrangling, visualization and graphics. Any other minor packages for analysis will be listed when needed. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(tidyr)
+library(dplyr)
+
+# Other main packages
+library(kableExtra)
+library(ggplot2)
+library(car)
+```
+
+The three data sets were taken from Richard A. Johnson and Dean W. Wichern's _Applied Multivariate Statistical Analysis_ textbook. These sets are relatively small, but the focus of this project is on the tidying and transformation methodology using only `dplyr` and `tidyr`, where necessary, rather than the amount of data and the analysis performed. These techniques can therefore be translated to another data set that needs to be format in a similar way. The data sets were saved to [my Github](https://github.com/greeneyefirefly/Data607/tree/master/HomeWork/Projects/Project%202) and were retrieved from there. The difficulty of the tidying to be done can by ranked as follow:
+
+* Level 1: Hook-Billed Kites
+* Level 2: Anacondas
+* Level 3: Peanuts
+
+***
+<center> *LEVEL 1* </center>
+***
+# Hook-Billed Kites 
+
+Hooked-billed kites are tropical raptor found broadly across Central and South America, occasionally north to the very southern tip of Texas. They have long tail and broad, rounded wings distinctive in flight. Males are gray overall with white barring on the belly. Females are brown above with rufous barred underparts and mostly gray head. Juveniles paler below with thinner barring. 
+
+In this data set, a wildlife ecologist measured the tail length (in millimeters) and wing length (in millimeters) for a sample of n = 45 female hook-billed kites. The data is a text file which list the tail and wing lengths in three separate columns, 15 rows each, to conserve page space. 
+
+```{r}
+theURL <- "https://raw.githubusercontent.com/greeneyefirefly/Data607/master/Projects/Project%202/untidy1.txt"
+untidy1 <- read.delim(theURL, header = FALSE, stringsAsFactors = FALSE, na.strings = c("", "NA"))
+```
+
+<details>
+  <summary> *Click to show raw data* </summary>
+```{r echo=FALSE}
+untidy1
+```
+</details>
+
+***
+### How & Why to Tidy {.tabset .tabset-fade .tabset-pills}
+
+Each of the same variable was spread across three columns, this made it cumbersome to index to run any analysis. In addition, there are unnecessary variable labels which can be removed once transformed to make the data set more comprehensible, not to mention the numerous empty columns and rows. Therefore, the main reason for tidying was to make the data set easily identifiable with the necessary data.
+
+In this case, it was decided that the columns needed to be merged, transforming the wide data set into a long format, as shown below.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, paged.print=FALSE}
+knitr::include_graphics("https://raw.githubusercontent.com/greeneyefirefly/Data607/master/Projects/Project%202/picture%201.png") 
+```
+
+##### Data transformation using `dplyr` and `tidyr`.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# Remove empty rows and columns
+untidy1 <- data.frame(sapply(untidy1, as.numeric))
+tidy1 <- untidy1 %>% filter_all(any_vars(!is.na(.))) %>% select_if(function(x) !(all(is.na(x)) | all(x=="")))
+
+# Gather the data of all the columns into one 
+# Convert variables to factor for identification
+# Recode variable factors into appropriate labels
+tidy1 <- tidy1 %>% gather(tidy1, lengths, 1:6, convert = TRUE) %>%  mutate(tidy1= recode(tidy1, "c('V1', 'V5', 'V9')='TailLength'; c('V3', 'V7', 'V11') = 'WingLength'"))
+
+# Renaming rows
+rownames(untidy1) <- 1:nrow(untidy1)
+
+# Spreading the data to make it long
+tidy1 <- tidy1 %>% group_by(tidy1) %>% mutate(grouped_id = row_number()) %>% spread(tidy1, lengths) %>% select(-grouped_id)
+```
+
+***
+<center> *Hook-Billed Kites Data set* </center>
+
+#### Untidy
+```{r echo=FALSE}
+kable(untidy1) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+#### Tidy
+```{r echo=FALSE}
+kable(tidy1) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+### Results & Conclusion
+
+Let's do some fun analysis! Using this data, let's find the simultaneous confidence level for the component means, i.e. the wing and tail lengths. When multiple confidence intervals are examined, the chances that at least one of the confidence intervals does not contain the population parameter is greater for a set of intervals than for any single interval. 
+
+In this analysis, the 95% Bonferroni confidence intervals were determined. The plot reveals that the Bonferroni confidence intervals, indicated by the dash lines, suggest that the ecologist can be 95% confident that the points that fall within all the set of confidence intervals includes the true population standard deviations for all variables. This plot is helpful to the wildlife ecologist because when he/she discovers more female hooked-billed kites, he/she can establish whether its measurements are within the typical standards. Knowing this, they can further study why a measurement, such as an outlier, was recorded in the first place.
+
+<details>
+  <summary> *Click to show code* </summary>
+```{r}
+n <- length(tidy1$TailLength)
+
+# Get the fitted values of the linear model
+model <- lm(TailLength ~ WingLength, data = tidy1)
+fit <- model$fitted.values
+  
+# Find standard error 
+serror <- sqrt(sum((tidy1$TailLength - fit)^2) / (n - 2)) * sqrt(1 / n + (tidy1$WingLength - mean(tidy1$WingLength))^2 / sum((tidy1$WingLength - mean(tidy1$WingLength))^2))
+
+# Calculate B statistics 
+B <- 1-qt(.95/(2 * 3), n - 1)
+
+# Compute the simultaneous Bonferroni confidence intervals 
+bon.upper <- fit + B * serror
+bon.lower <- fit - B * serror
+```
+</details>
+
+```{r echo=FALSE, fig.align='center'}
+# Plot the Bonferroni intervals
+ggplot(tidy1, aes(x = WingLength, y = TailLength)) + geom_point() + stat_ellipse() + geom_line(aes(y = fit, x = WingLength)) + geom_line(aes(x = WingLength, y = bon.upper), linetype = 'dashed') + geom_line(aes(x = WingLength, bon.lower), linetype='dashed') + geom_ribbon(aes(ymin = bon.lower,ymax = bon.upper), fill="light grey", alpha="0.5") + theme(plot.background = element_rect(fill = 'indianred2')) + ggtitle("The 95% Bonferroni simultaneous confidence intervals and ellipse.")
+```
+
+Moreover, from the plot, there are a few outliers within the data set that can be a result of type 1 error. However, the confidence ellipse still appeared to contain 95% of the observations. As the ecologist observations for female hook-billed kites increases, the mean will usually be better and better estimated, leading to smaller and smaller confidence ellipses, which in turn contain a smaller and smaller proportion of the actual data.
+
+
+*** 
+<center> *LEVEL 2* </center>
+***
+# Anacondas 
+Anacondas are some of the largest snakes in the world. A team of researchers recorded the snout vent length (in cm) or the length from the snout of the snake to its vent where it evacuates waste, and its weight (in kg). The data set has the measurements sub-divided by the snakes' gender.
+
+```{r}
+theURL <- "https://raw.githubusercontent.com/greeneyefirefly/Data607/master/Projects/Project%202/untidy2.csv"
+untidy2 <- data.frame(read.csv(file = theURL, header = TRUE, sep = ","))
+```
+
+<details>
+  <summary> *Click to show raw data* </summary>
+```{r echo=FALSE}
+untidy2
+```
+</details>
+
+***
+### How & Why to Tidy {.tabset .tabset-fade .tabset-pills}
+
+For this data set, let the aim be to test for equality of means between male and female anacondas. The subdivision of this data set makes the test inputs very untidy and will not allow for quick analysis since careful attention is needed for indexing. Therefore, in this case, tidying is based on the statistical analysis.
+
+Here, it was decided that the variable for gender needed to have its own column, and the respective measurements needed to be merge, changing from the wide format into a long format, as shown below:
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, paged.print=FALSE}
+knitr::include_graphics("https://raw.githubusercontent.com/greeneyefirefly/Data607/master/Projects/Project%202/picture%202.png") 
+```
+
+##### Data transformation using `dplyr` and `tidyr`.
+
+```{r warning=FALSE}
+# Identifying the columns by renaming
+tidy2 <- untidy2 %>% rename(Fsnout = Female, Fwght = X, Msnout = Male, Mwght = X.1) 
+
+# Simple row removal and renaming
+tidy2 <- tidy2[-1,]
+rownames(tidy2) <- 1:nrow(tidy2)
+
+# Gather the data by respective columns
+tidy2 <- gather(tidy2, "gender", "measurement", c(c(1,3),c(2,4)))
+
+# Creating a new data frame of variable identification to be merged with data set
+id <- data.frame(tidy2$gender, stringsAsFactors=FALSE)
+titles <- c("snoutLength", "weight")
+id[c(1:28),] <- titles[1]
+id[c(29:56),] <- titles[2]
+id[c(57:84),] <- titles[1]
+id[c(85:112),] <- titles[2]
+
+# Convert variables to factor for identification
+# Recode variable factors into appropriate labels
+tidy2 <- tidy2 %>% mutate_at(vars(gender), as.factor) %>% mutate(gender = recode(gender, "c('Fsnout', 'Fwght') = 'Female' ; c('Msnout', 'Mwght') = 'Male'"))
+
+# Spread the data based on the identified gender categories for snout and weight data
+# Gather once more to create the final gender key
+tidy2 <- tidy2 %>% group_by(gender) %>% mutate(grouped_id = row_number()) %>% spread(gender, measurement, convert = TRUE) %>% select(-grouped_id) %>% gather("Key", "measurement", 1:2) 
+
+# Attach the new column data
+tidy2 <- data.frame(append(tidy2,id))
+
+# Spread once more by the gender key so each measurement is in its own column
+tidy2 <- tidy2 %>% group_by(tidy2.gender) %>% mutate(grouped_id = row_number()) %>% spread(tidy2.gender, measurement, convert = TRUE) %>% select(-grouped_id) %>% rename(gender = Key)
+```
+
+***
+<center> *Anacondas Data set* </center>
+
+#### Untidy
+```{r echo=FALSE}
+kable(untidy2) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+#### Tidy
+```{r echo=FALSE}
+kable(tidy2) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+### Analysis & Results {.tabset .tabset-fade .tabset-pills}
+#### Test of Correlation
+
+With the *untidy* data, there are some simple analysis that can be done (but note that the untidy data still needed to be converted to the appropriate class). For instance, a correlation test can be done to evaluate the association between snout length and weight for both male and female snakes. Since the data is already separated, it can be easily fed into a function like this.
+
+(1) Is there a relationship between the snout length and weight for female anacondas?
+
+```{r}
+cor.test(as.numeric(untidy2$Female), as.numeric(untidy2$X), method = "pearson")
+```
+
+The p-value of the test is less than 0.05, therefore, it can concluded that the weight and snout length for female anacondas are significantly correlated with a correlation coefficient of 0.76. Since it is a positive correlation, it further suggest that as the weight increases, the snout length increases as well for female anacondas.
+
+(2) Is there a relationship between the snout length and weight for male anacondas?
+
+```{r}
+cor.test(as.numeric(untidy2$Male), as.numeric(untidy2$X.1), method = "pearson")
+```
+
+With the male anacondas, the p-value of the test is more than 0.05. Therefore, it can concluded that the weight and snout length for male are not significantly correlated, and there is no evidence that weight and snout length has any relationship for male anacondas.
+
+***
+#### Test of Difference
+
+Now, with the *tidy* data, a two sample independent test can be conducted. Two data samples are independent as they come from unrelated populations and the samples does not affect each other. Firstly, from the normal Q-Q plot, the data on snout lengths can be said to follow closely to a normal distribution, therefore satisfying the assumption of normality to conduct a t-test. 
+
+```{r echo=FALSE, fig.align='center'}
+ggplot(tidy2, aes(sample = snoutLength)) +  stat_qq() + stat_qq_line(geom = "path", distribution = stats::qnorm) + facet_grid(gender ~ .) + theme(plot.background = element_rect(fill = 'indianred2')) + ggtitle("Normal QQ plots of snout length")
+```
+
+```{r}
+t.test(snoutLength ~ gender, data = tidy2)
+```
+
+Using the t-test, the interval estimate of the difference between two gender means was obtained. In the *tidy* data, the mean snout length for female anacondas is 348.28 cm and the mean snout length for male anacondas is 228.72 cm. The 95% confidence interval of the difference in mean snout length is between 91.78 and 147.32 cm. As a result, there is a statistical significant difference in snout length based on gender where female anacondas have a larger snout than males.
+
+Now with the weight of the anacondas, the normal Q-Q plot also show that the data satisfy the assumption of normality to conduct a t-test. 
+
+```{r echo=FALSE, fig.align='center'}
+ggplot(tidy2, aes(sample = weight)) +  stat_qq() + stat_qq_line(geom = "path", distribution = stats::qnorm) + facet_grid(gender ~ .) + theme(plot.background = element_rect(fill = 'indianred2')) + ggtitle("Normal QQ plots of weight")
+```
+
+```{r}
+t.test(weight ~ gender, data = tidy2)
+```
+
+The t-test results shows that the mean weight for female anacondas is 37.26 kg and the mean weight for male anacondas is 7.29 kg. The 95% confidence interval of the difference in mean weight is between 22.14 and 37.80 kg. Therefore, there is also a statistical significant difference in weight based on gender where female anacondas are heavier than males.
+
+***
+### Conclusion
+
+In conclusion, when analyzing the tidy set, it is evident that female anacondas are considerably longer and heavier than males. This may be because there is a relationship with female snout length and weight, which was not significant with male anacondas. 
+
+*** 
+<center> *LEVEL 3* </center>
+***
+# Peanut 
+Peanut are an important crop in parts of the southern United States. To develop improved plants, crop scientists routinely compare varieties with respect to several attributes. A table of data is given in a .csv file. There are four varieties of peanuts, Runner, Spanish, Valencia, and Virginia that are grown at four geographical locations, Alabama, Florida, Georgia, and Texas. Moreover, this table consist the yield (plot weight), and two important grade-grain characteristics, sound mature kernels (weight in grams), and seed size (weight in grams).
+
+```{r}
+theURL <- "https://raw.githubusercontent.com/greeneyefirefly/Data607/master/Projects/Project%202/untidy3.csv"
+untidy3 <- data.frame(read.csv(file = theURL, header = TRUE, sep = ","))
+```
+<details>
+  <summary> *Click to show raw data* </summary>
+```{r echo=FALSE}
+untidy3
+```
+</details>
+ 
+***
+### How & Why to Tidy {.tabset .tabset-fade .tabset-pills}
+
+The data set is in a table format. The table itself can be easily read, but it is in no way workable for any statistical analysis using R. More specifically, there are necessary variable names which do not have their own columns. The subdivision of this data set makes the test inputs very untidy and will not allow for quick analysis since careful attention is needed for indexing. Therefore, tidying is based on the statistical analysis to make the data set easily identifiable with the necessary data.
+
+In this case, it was decided that specific rows needed to become columns, and the respective measurements needed to be merge, transforming the wide table into a long data set, as shown below.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, paged.print=FALSE}
+knitr::include_graphics("https://raw.githubusercontent.com/greeneyefirefly/Data607/master/Projects/Project%202/picture%203.png") 
+```
+
+##### Data Transformation using `dplyr` and `tidyr`.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# Rigorous cleaning methods #
+## Removing unnecessary rows
+tidy3 <- untidy3[-c(2,7,11,15,19,21,26,30,34),-2]
+
+# Identify the variable names for missing column before tidying
+## Batch labels
+tidy3[c(2:14),1] <- tidy3[1,1]
+tidy3[c(16:28),1] <- tidy3[15,1]
+
+## Location labels
+tidy3[c(3:5,17:19),2] <- tidy3[3,2]
+tidy3[c(6:8,20:22),2] <- tidy3[6,2]
+tidy3[c(9:11,23:25),2] <- tidy3[9,2]
+tidy3[c(12:14,26:28),2] <- tidy3[12,2]
+
+# Identifying the columns by renaming
+tidy3 <- rename(tidy3, Batch = Table.6.17.Peanut.Data, Location = X.1, Variable = X.2, Runner = X.3, Spanish = X.4, Valencia = X.5, Virginia = X.6) 
+
+# Removing and renaming final rows
+tidy3 = tidy3[-c(1,2,15,16),]
+rownames(tidy3) <- 1:nrow(tidy3)
+
+# Gather the data into variables of peanut variety and the measurements
+# Spread based on the measurement variable names
+# Convert character data into factors and numbers
+tidy3 <- tidy3 %>% gather("Variety", "Measurement", 4:7) %>% spread("Variable", "Measurement", convert = TRUE) 
+tidy3 <- droplevels(mutate_if(tidy3, is.character, as.factor))
+```
+
+***
+<center> *Peanut Data set* </center>
+
+#### Untidy
+```{r echo=FALSE}
+kable(untidy3) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+#### Tidy
+```{r echo=FALSE}
+kable(tidy3) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+### Analysis & Results {.tabset .tabset-fade .tabset-pills}
+#### Variable Effect
+In this tidy data set, there are two batches (1 and 2) of peanut shipment from four different locations, and there is an interest in the kernels weight, seed size and yield of the peanuts. Simple two sample t-tests between the batches resulted in no difference in the means for the three attributes. Hence, let's investigate if all three together are affected by the difference in location and peanut variety. A multivariate analysis of variance could be used to test this, by answering the following research questions:
+
+(1) Is there any significant difference in the three attributes among the different location they were sourced?
+
+(2) Is there any significant difference in the three attributes among the different variety of peanuts?
+
+(3) Is there any significant difference in the three attributes with the interactions of the different variety and location they were sourced?
+
+```{r}
+res.man <- manova(cbind(`kernels weight`,`seed size`, Yield) ~ Location + Variety + Location*Variety, data = tidy3)
+
+summary(res.man, test="Pillai")
+```
+The model reveal that there is no significant difference among the three attributes and the `location` they were grown, p-value > 0.05. Moreover, the findings indicated that the interaction effect was also non-significant overall. However, there is a statistical significant difference among the three attributes and the different `variety` of peanut, p-value < 0.05. Let's look at the fit residuals and effects in more detail.
+
+***
+#### Residuals of the model
+The residuals for `kernels weight` appears very large in absolute value, but the Q-Q plots of residuals indicate that univariable normality cannot be rejected for all three variables. Since the data can be assume to follow a normal distribution based on the Q-Q plots, an analysis of the variance model can be done. 
+
+```{r echo=FALSE, fig.align='center'}
+# Gather the residual to create a Q-Q plot facet grid by the three attributes
+data = gather(data.frame(res.man[["residuals"]]),"key", "res", 1:3)
+
+ggplot(data, aes(sample = res)) + stat_qq(shape=1, size=3) + facet_grid(. ~ key) + labs(title="Q-Q Plots of Residuals", x="Theoretical Quantiles", y="Standardized Residuals") + stat_qq_line() +  theme(plot.background = element_rect(fill = 'indianred2')) 
+```
+
+***
+#### Test of Difference
+Here, the detailed result shows that there is a difference when the `kernel weight` was considered based on the `variety` of the peanut and there is an interaction effect with the `location` and `variety`, p-value < 0.05. For `seed size`, both `location` and `variety` were statistically significant but there was no interaction effect. Lastly, for `yield`, only the different `variety` were found to be statistically significant, p-value < 0.05.
+
+```{r}
+summary.aov(res.man)
+```
+
+***
+### Conclusion
+In conclusion, the two-factor MANOVA indicates that there is evidence of variety effect for all three attributes. There is also a location effect for the seed size, and an interaction effect for the kernel weight only. These findings could have only been calculated with a tidy data set, demonstrating why the data needed to be tidy appropriately based on the analysis.
+
+***
+
+# The Challenge of Tidying and Transformation
+
+For each data set, it was established how and why the tidying and transformation were carried out. The reasons include to make the data set easily identifiable with the necessary data and for appropriate inputs to statistical analyses. The challenging of this project was deciding how to transform the data. For the *Level 1* data set, `Hook-billed kites`, the text data needed to be correctly merge with their respective attributes. The *Level 2* `Anaconda` data set needed to be `gather` and `spread` a few times  with additional information before it was in the right format. Lastly, the *Level 3* `Peanut` data table needed rigorous cleaning and proper labeling to make a table into a data frame. Overall, each data set needed careful attention to understand how and when to use `tidyr` and `dplyr` to tidy and transform them as necessary.
+
+***
+# Works Cited
+
+* Johnson, Richard A, and Dean W. Wichern. Applied Multivariate Statistical Analysis. Englewood Cliffs, N.J: Prentice Hall, 1992. Print.
+
+* Tinsley, Howard E. Handbook of Applied Multivariate Statistics and Mathematical Modeling. Academic Press, 2006. Print.
+
