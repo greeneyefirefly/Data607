@@ -12,7 +12,7 @@ td, th {
 
 <h2>HTML Table of Favorite Books</h2>
 
-<table>
+<table id='FavoriteBooks'>
   <tr>
     <th>Book Title</th>
     <th>Authors</th>
