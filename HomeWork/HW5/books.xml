@@ -1,26 +1,26 @@
-<XML Table of Favorite books>
-    <book information>
-        <Book Title>Handbook of Applied Multivariate Statistics and Mathematical Modeling</Book Title>
+<XML_Table_of_Favorite_books>
+    <book_information>
+        <Book_Title>Handbook of Applied Multivariate Statistics and Mathematical Modeling</Book_Title>
         <Authors>Howard E. A. Tinsley, Steven D. Brown</Authors>
         <Edition>1st</Edition>
-        <Year Published>2000</Year Published>
+        <Year_Published>2000</Year_Published>
         <ISBN-10>0126913609</ISBN-10>
         <Publisher>Academic Press</Publisher>
-    </book information>
-    <book information>
-        <Book Title>Applied Multivariate Statistical Analysis</Book Title>
+    </book_information>
+    <book_information>
+        <Book_Title>Applied Multivariate Statistical Analysis</Book_Title>
         <Authors>Richard A. Johnson, Dean W. Wichern</Authors>
         <Edition>6th</Edition>
-        <Year Published>2007</Year Published>
+        <Year_Published>2007</Year_Published>
         <ISBN-10>0131877151</ISBN-10>
         <Publisher>Pearson</Publisher>
-    </book information>
-    <book information>
-        <Book Title>Applied Regression Analysis and Generalized Linear Models</Book Title>
+    </book_information>
+    <book_information>
+        <Book_Title>Applied Regression Analysis and Generalized Linear Models</Book_Title>
         <Authors>John Fox</Authors>
         <Edition>2nd</Edition>
-        <Year Published>2008</Year Published>
+        <Year_Published>2008</Year_Published>
         <ISBN-10>0761930426</ISBN-10>
         <Publisher>Sage Publications</Publisher>
-    </book information>
-</XML Table of Favorite books>
+    </book_information>
+</XML_Table_of_Favorite_books>
