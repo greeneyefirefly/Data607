@@ -8,7 +8,7 @@
                 "Edition": "1st",
 		"Year Published": "2000",                
                 "ISBN-10": "0126913609",
-		"Publisher": "Academic Press", 
+		"Publisher": "Academic Press"
             },
             {
                 "Book Title": "Applied Multivariate Statistical Analysis",
@@ -16,7 +16,7 @@
                 "Edition": "6th",
 		"Year Published": "2007",                
                 "ISBN-10": "0131877151",
-		"Publisher": "Pearson",
+		"Publisher": "Pearson"
             },
 	    {
                 "Book Title": "Applied Regression Analysis and Generalized Linear Models",
@@ -24,7 +24,7 @@
                 "Edition": "2nd",
 		"Year Published": "2008",                
                 "ISBN-10": "0761930426",
-		"Publisher": "Sage Publications", 
+		"Publisher": "Sage Publications"
             }
         ]
     }
