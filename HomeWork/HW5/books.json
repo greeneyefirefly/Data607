@@ -1,6 +1,5 @@
 {
-	"JSON_Table_of_Favorite_books": {
-		"book_information": [
+	"JSON_Table_of_Favorite_books": [
 			{
 				"Book_Title": "Handbook of Applied Multivariate Statistics and Mathematical Modeling",
 				"Authors": "Howard E. A. Tinsley, Steven D. Brown",
@@ -25,6 +24,6 @@
 				"ISBN-10": "0761930426",
 				"Publisher": "Sage Publications"
 			}
-		]
-	}
+	]
 }
+
