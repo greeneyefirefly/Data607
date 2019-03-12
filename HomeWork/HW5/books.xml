@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<book-table>
+<XML Table of Favorite books>
 	<book>
 		<Book Title>Handbook of Applied Multivariate Statistics and Mathematical Modeling</Book Title>
 		<Authors>Howard E. A. Tinsley, Steven D. Brown</Authors>
@@ -24,4 +24,4 @@
 		<ISBN-10>0761930426</ISBN-10>
 		<Publisher>Sage Publications</Publisher>
 	</book>
-</book-table>
+</XML Table of Favorite books>
