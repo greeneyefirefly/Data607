@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<book-table>
+	<book>
+		<Book Title>Handbook of Applied Multivariate Statistics and Mathematical Modeling</Book Title>
+		<Authors>Howard E. A. Tinsley, Steven D. Brown</Authors>
+		<Edition>1st</Edition>
+		<Year Publish>2000</Year Publish>
+		<ISBN-10>0126913609</ISBN-10>
+		<Publisher>Academic Press</Publisher>
+	</book>
+	<book>
+		<Book Title>Applied Multivariate Statistical Analysis</Book Title>
+		<Authors>Richard A. Johnson, Dean W. Wichern</Authors>
+		<Edition>6th</Edition>
+		<Year Publish>2007</Year Publish>
+		<ISBN-10>0131877151</ISBN-10>
+		<Publisher>Pearson</Publisher>
+	</book>
+	<book>
+		<Book Title>Applied Regression Analysis and Generalized Linear Models</Book Title>
+		<Authors>John Fox</Authors>
+		<Edition>2nd</Edition>
+		<Year Publish>2008</Year Publish>
+		<ISBN-10>0761930426</ISBN-10>
+		<Publisher>Sage Publications</Publisher>
+	</book>
+</book-table>
