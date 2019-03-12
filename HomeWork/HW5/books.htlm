@@ -1,0 +1,51 @@
+<html>
+<head> <style>
+table {
+  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;  text-align: left;  padding: 8px;
+}
+
+</style> </head> <body>
+
+<h2>HTML Table of Favorite Books</h2>
+
+<table>
+  <tr>
+    <th>Book Title</th>
+    <th>Authors</th>
+    <th>Edition</th>
+    <th>Year Published</th>
+    <th>ISBN-10</th>
+    <th>Publisher</th>
+  </tr>
+  <tr>
+    <td>Handbook of Applied Multivariate Statistics and Mathematical Modeling</td>
+    <td>Howard E.A. Tinsley, Steven D. Brown</td>
+    <td>1st</td>
+    <td>2000</td>
+    <td>0126913609</td>
+    <td>Academic Press</td>
+  </tr>
+    <tr>
+    <td>Applied Multivariate Statistical Analysis</td>
+    <td>Richard A. Johnson, Dean W. Wichern</td>
+    <td>6th</td>
+    <td>2007</td>
+    <td>0131877151</td>
+    <td>Pearson</td>
+  </tr>
+  <tr>
+    <td>Applied Regression Analysis and Generalized Linear Models</td>
+    <td>John Fox</td>
+    <td>2nd</td>
+    <td>2008</td>
+    <td>0761930426</td>
+    <td>Sage Publications</td>
+  </tr>
+</table>
+
+</body>
+</html>
