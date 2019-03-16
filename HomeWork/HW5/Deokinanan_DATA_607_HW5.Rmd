@@ -1,0 +1,339 @@
+---
+title: "CUNY MSDS Data 607 HW #5"
+author: "Samantha Deokinanan"
+date: "17th March, 2019"
+output:
+  html_document:
+    theme: journal
+    toc: TRUE
+    toc_float: TRUE  
+    toc_depth: 4
+---
+***
+
+### Overview
+
+In this assignment, information about my favorite books on one of my favorite subject were stored in three (3) different formats. These are HTML, XML, and JSON table formats. Each were created "by hand", for which the codes are shown in the respective sections. The tables were saved to [my Github](https://github.com/greeneyefirefly/Data607/tree/master/HomeWork/HW5) and were retrieved from there.
+
+The task was to create and practice loading these tables into R. No tidying or transformation was done, since I compared them based on the raw conversion from the specific format into an R data frame. Later, I discussed the advantages and disadvantages of each format I noticed while completing this assignment, and concluded on which format might be the better choice based on one's purpose.
+
+The main R packages that were need are below:
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# Packages for working with HTML, XML & JSON
+library(RCurl)
+library(XML)
+library(jsonlite)
+
+# Other packages
+library(kableExtra)
+```
+
+***
+### HTML format {.tabset .tabset-fade .tabset-pills}
+
+All internet browsers support table formats. Visually, an HTML table is a simple layout of row and columns. Each cell can contain any class of data, from text, numerical, images, etc. HTML creates a neat and ordered depiction for its tables over a range of browsers due to its adaptability. Specifying the aesthetics of the table, such as shades, drop down capabilities, size, positioning, etc., further allows for more interactive and clearer presentation of information. 
+
+Let's look at the HTML script and load it into R.
+
+***
+#### HTML Script
+
+This snippet of HTML script creates a table of my favorite books.
+
+<details>
+  <summary> *Click to show HTML Script* </summary>
+```{r eval=FALSE}
+<html>
+<head> <style>
+table {
+  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;  text-align: left;  padding: 8px;
+}
+
+</style> </head> <body>
+
+<h2>HTML Table of Favorite Books</h2>
+
+<table id='FavoriteBooks'>
+  <tr>
+    <th>Book Title</th>
+    <th>Authors</th>
+    <th>Edition</th>
+    <th>Year Published</th>
+    <th>ISBN-10</th>
+    <th>Publisher</th>
+  </tr>
+  <tr>
+    <td>Handbook of Applied Multivariate Statistics and Mathematical Modeling</td>
+    <td>Howard E.A. Tinsley, Steven D. Brown</td>
+    <td>1st</td>
+    <td>2000</td>
+    <td>0126913609</td>
+    <td>Academic Press</td>
+  </tr>
+    <tr>
+    <td>Applied Multivariate Statistical Analysis</td>
+    <td>Richard A. Johnson, Dean W. Wichern</td>
+    <td>6th</td>
+    <td>2007</td>
+    <td>0131877151</td>
+    <td>Pearson</td>
+  </tr>
+  <tr>
+    <td>Applied Regression Analysis and Generalized Linear Models</td>
+    <td>John Fox</td>
+    <td>2nd</td>
+    <td>2008</td>
+    <td>0761930426</td>
+    <td>Sage Publications</td>
+  </tr>
+</table>
+
+</body>
+</html>
+```
+</details>
+
+
+***
+#### Loading the File
+
+*Step 1*: Use `RCurl::getURL` to download the URL for the raw data into R.
+```{r}
+ptm <- proc.time()
+htmlURL <- getURL("https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW5/books.htlm")
+```
+
+*Step 2*: Use `XML::readHTMLTable` to extract and parse the data from HTML tables in an HTML document. Convert the table into a data frame.
+```{r}
+books.htlm <- as.data.frame(readHTMLTable(htmlURL, header = TRUE, fill = FALSE))
+proc.time()-ptm
+```
+
+Note that above is the time it took R to retrieve and convert the HTML file into a data frame. On average, it takes ~0.81 second for the code chunk to run. This made HTML file the longest to import.
+
+***
+#### The Output
+
+Here is how the HTLM file looks like after it was parsed and converted into a data frame. It was noted that it retains the same structure as the HTML table. While it concatenate the main table title with the column names, it is still properly labeled. Moreover, each variable was stored as factor in the data frame.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+kable(books.htlm) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+### XML format {.tabset .tabset-fade .tabset-pills}
+
+XML is a markup language that uses human language to be read by machine. Any application that can process XML, can use your information, regardless of platform. It can be used to share information in a consistent way. An XML document is considered to be "well formed" (i.e. easily parsed) if its format complies with the XML specification, if it is properly marked up, and if elements are properly nested. 
+
+Let's look at the XML script and load it into R.
+
+***
+#### XML Script
+
+This is a snippet of the XML script which creates a table of my favorite books.
+
+<details>
+  <summary> *Click to show XML Script* </summary>
+```{r eval=FALSE}
+<XML_Table_of_Favorite_books>
+    <book_information>
+        <Book_Title>Handbook of Applied Multivariate Statistics and Mathematical Modeling</Book_Title>
+        <Authors>Howard E. A. Tinsley, Steven D. Brown</Authors>
+        <Edition>1st</Edition>
+        <Year_Published>2000</Year_Published>
+        <ISBN-10>0126913609</ISBN-10>
+        <Publisher>Academic Press</Publisher>
+    </book_information>
+    <book_information>
+        <Book_Title>Applied Multivariate Statistical Analysis</Book_Title>
+        <Authors>Richard A. Johnson, Dean W. Wichern</Authors>
+        <Edition>6th</Edition>
+        <Year_Published>2007</Year_Published>
+        <ISBN-10>0131877151</ISBN-10>
+        <Publisher>Pearson</Publisher>
+    </book_information>
+    <book_information>
+        <Book_Title>Applied Regression Analysis and Generalized Linear Models</Book_Title>
+        <Authors>John Fox</Authors>
+        <Edition>2nd</Edition>
+        <Year_Published>2008</Year_Published>
+        <ISBN-10>0761930426</ISBN-10>
+        <Publisher>Sage Publications</Publisher>
+    </book_information>
+</XML_Table_of_Favorite_books>
+```
+</details>
+
+***
+#### Loading the File
+
+*Step 1*: Use `RCurl::getURL` to download the URL for the raw data into R.
+```{r}
+ptm <- proc.time()
+xmlURL <- getURL("https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW5/books.xml")
+```
+
+*Step 2*: Use `XML::xmlParse` to parse the data from XML file containing XML content and form an XML tree. 
+```{r}
+books.xml <- xmlParse(xmlURL)
+```
+
+*Step 3*: Use `XML::xmlToDataFrame` to convert the xml content into a data frame.
+```{r}
+books.xml <- xmlToDataFrame(books.xml)
+proc.time()-ptm
+```
+
+On average, the time it takes R to retrieve and convert the XML file into a data frame was ~0.21 second for the code chunk to run. This made XML file the second longest to import.
+
+***
+#### The Output
+
+Here is how the XML file looks like after it was converted into a data frame. It was noted that it also retains the same structure and still properly labeled as the script was programmed. Similar to the HTML data frame, each variable was stored as factor.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+kable(books.xml) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+### JSON format {.tabset .tabset-fade .tabset-pills}
+
+When exchanging data between a browser and a server, the data can only be in text format. A JSON file is generally used to deliver text which can be interpreted as a JavaScript object. There is no complicated parsing, therefore making it is easy for humans to read and create, and easy for machines to generate.   
+
+Let's look at the JSON script and load it into R.
+
+***
+#### JSON Script
+
+This is a snippet of the JSON script which creates a table of my favorite books.
+
+<details>
+  <summary> *Click to show JSON Script* </summary>
+```{r eval=FALSE}
+{
+	"JSON_Table_of_Favorite_books": [
+			{
+				"Book_Title": "Handbook of Applied Multivariate Statistics and Mathematical Modeling",
+				"Authors": "Howard E. A. Tinsley, Steven D. Brown",
+				"Edition": "1st",
+				"Year_Published": "2000",
+				"ISBN-10": "0126913609",
+				"Publisher": "Academic Press"
+			},
+			{
+				"Book_Title": "Applied Multivariate Statistical Analysis",
+				"Authors": "Richard A. Johnson, Dean W. Wichern",
+				"Edition": "6th",
+				"Year_Published": "2007",
+				"ISBN-10": "0131877151",
+				"Publisher": "Pearson"
+			},
+			{
+				"Book_Title": "Applied Regression Analysis and Generalized Linear Models",
+				"Authors": "John Fox",
+				"Edition": "2nd",
+				"Year_Published": "2008",
+				"ISBN-10": "0761930426",
+				"Publisher": "Sage Publications"
+			}
+	]
+}
+```
+</details>
+
+***
+#### Loading the File
+
+*Step 1*: Use `RCurl::getURL` to download the URL for the raw data into R
+```{r}
+ptm <- proc.time()
+jsonURL <- getURL("https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW5/books.json")
+```
+
+*Step 2*: Use `jsonlite::fromJSON` to parse the data from a JSON file into R objects. Then convert the JSON content into a data frame.
+```{r}
+books.json <- as.data.frame(fromJSON(jsonURL))
+proc.time()-ptm
+```
+
+On average, it takes ~0.17 second for the code chunk to run that retrieve and convert the JSON file into a data frame. This made JSON file the quickest to import.
+
+***
+#### The Output
+
+Here is how the JSON file looks like after it was parsed into a data frame. It retains the same structure and concatenate the main table title with the column names, similarly to how HTML did. However, in this case, each variable was stored as character.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+kable(books.json) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+### Comparing the Formats {.tabset .tabset-fade .tabset-pills}
+
+#### The Advantages Among the Formats {.tabset .tabset-fade .tabset-pills}
+
+Some of the advantages I can already see with a beginner's knowledge about these three methods are:
+
+##### HTML
+
+* Every browser supports HTML language.
+* Outputs are clean and can be easily render.
+* It is widely used and well-known in spite of its disadvantages.
+* Can get very creative with font, colors, layouts, etc. for web-design.
+* Largely case insensitive, except for certain attributes, such as IDs.
+
+##### XML
+
+* XML tag names are readable and easily convey the meaning of the data to both humans and computers, similar to JSON.
+* Each XML tag immediately precedes the associated data, like JSON.
+* The data structure follows a noticeable and useful pattern, making it easy to manipulate and exchange the data, similar to JSON.
+* Loads faster into R than HTML.
+
+##### JSON
+
+* Smaller and more compact script size.
+* JSON tag names are readable to both humans and computers, like XML.
+* Each JSON tag immediately precedes the associated data, similar to XML.
+* The data structure follows a noticeable pattern, like XML
+* Can easily distinguish between the number and the string as numbers.
+* Takes less memory to store the same information.
+* Loads fastest into R than HTML and XML.
+
+***
+#### The Disadvantages Among the Formats {.tabset .tabset-fade .tabset-pills}
+
+There are also some of disadvantages which are immediately noticeable about these three methods. These include:
+
+##### HTML
+
+* HTML tag names reveal nothing about the meaning of the content. 
+* HTML script is larger in size for a simple table.
+* Takes more memory to store the same information, similar to XML.
+* Loads slower into R than JSON and XML.
+
+
+##### XML
+
+* Takes more memory to store the same information, similar to HTML.
+* XML does not contain any information indicating how the document should be rendered in a browser, unlike HTML.
+* Case sensitive and compulsory to use closing tags, unlike HTML.
+
+##### JSON
+
+* Every single comma, quote, and bracket must be correctly place, unlike HTML and XML.
+* JSON does not contain any information indicating how the document should be rendered in a browser, unlike HTML.
+
+### Conclusion
+
+Based on one's purpose, if there is a need for web page design, HTML is the master, whereas XML can be a better format for document markup and JSON is better for structured data exchange.
