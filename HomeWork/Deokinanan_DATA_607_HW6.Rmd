@@ -1,0 +1,182 @@
+---
+title: "CUNY MSDS Data 607 HW #6"
+author: "Samantha Deokinanan"
+date: "31st March, 2019"
+output:
+  html_document:
+    theme: journal
+    toc: TRUE
+    toc_float: TRUE  
+    toc_depth: 4
+---
+***
+
+### Overview
+
+[The New York Times Developer Network](http://developer.nytimes.com/) provides a rich set of APIs. After signing up for an API key, the *Article Search API* was chosen among the New York Times APIs. Using this, an interface was constructed in R to read in the JSON data, and it was tidied and transformed into an R data frame.
+
+I decided to use the key for the *Article Search API* because, for my DATA 606 Project, I will be analyzing an Air Quality and Air Toxins data set, and I need to conduct a literature review to support my research discussion. Therefore, this was a great opportunity to complete both task at once. 
+
+The necessary libraries are:
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(jsonlite)
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(kableExtra)
+````
+
+*** 
+
+### Retrieving the Data from the API {.tabset .tabset-fade .tabset-pills}
+
+The Times APIs have two rate limits on calls. They have a limit of 4,000 requests per day and 10 requests per minute. While it is unlikely to hit this limit in this assignment, it is still recommended that retrieved data be saved. Therefore, the following is an initial search to determine how many search results were found that matches the criteria.
+
+```{r eval=FALSE}
+# My API key
+apikey <- "?api-key=[MY API KEY]"
+
+# Search for articles related to air pollution
+query <- "&q=air%20pollution"
+
+# Time period for relevant articles
+start <- "&begin_date=20180101"
+end <- "&end_date=20190327"
+sort <- "&sort=relevance"
+
+# Get initial results from /articlesearch.json
+AirQualArticles <- fromJSON(paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json", apikey, query, start, end, sort))
+
+```
+
+***
+#### JSON to Data frame
+
+From the pull, it returned 451 hits that fits the search criteria. To retrieve all the articles, a for-loop was created to extract the articles over the 45 pages, transformed into a data frame and stored as a .csv file.
+
+```{r eval=FALSE}
+# Initializing the data frame
+AirQualArticlesDF <- c()
+
+lastpage <- floor((AirQualArticles$response$meta$hits)/10)
+
+for(i in 0 : lastpage){
+  page <- paste0("&page=", i)
+  try({
+    articles <- fromJSON(paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json", apikey, query, start, end, sort, page))
+    docs <- articles$response$docs
+    headline <- articles$response$docs$headline
+    
+    # The content needed
+    docs <- select(docs, web_url, lead_paragraph, abstract, source, pub_date, document_type, news_desk, section_name, subsection_name, type_of_material, word_count)
+    headline <- select(headline, main, print_headline)
+    
+    # create the data frame
+    docs <- data.frame(docs, stringsAsFactors = FALSE)
+    headline<-data.frame(headline, stringsAsFactors = FALSE)
+    docs <- cbind(docs, headline)
+    
+    # combine into one frame
+    AirQualArticlesDF <- rbind(AirQualArticlesDF, docs)
+    
+    # NY Times recommends pausing for at least 6 seconds before pulling another page
+    Sys.sleep(6)
+    }, silent = TRUE)
+}
+
+# Saving to a .csv
+write.csv(AirQualArticlesDF, file = "C:/PATH/TO/SAVE/AirQualArticlesDF.csv")
+```
+
+***
+#### The Result
+
+Upon visual inspection, there are a few duplicated results. 
+
+##### Articles pulled from the NY Times Article Search API
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+AirQualArticlesDF <- read.csv("AirQualArticlesDF.csv", header=TRUE, stringsAsFactors = FALSE)
+
+kable(AirQualArticlesDF[-1]) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "300px")
+```
+
+Nonetheless, the search was still able to pull more than 85 articles from the *Climate* section that are possibly good reference articles.
+
+<details>
+  <summary> *Code* </summary>
+```{r}
+sources <- cbind(head(arrange(data.frame(table(AirQualArticlesDF[8])),desc(Freq)), 10), head(arrange(data.frame(table(AirQualArticlesDF[9])),desc(Freq)), 10))
+names(sources)[c(1,3)] <- c("news_desk", "section_name")
+```
+</details>
+
+```{r}
+sources
+```
+
+***
+### More Defined
+
+Since I am interested in very specific effects that a few particular pollutants can cause, the following are some keywords which can help further narrow my results within the pull of *air pollution*:
+
+- carbon monoxide / ozone 
+- temperature increase / heat wave
+- acid rain / smog 
+
+Let's build a data frame with the respective URL to these articles that match well.
+
+<details>
+  <summary> *Detect String Pattern* </summary>
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# The keywords to detect
+pattern <- c("carbon monoxide", "ozone", "temperature increase", "heat wave", "smog", "acid rain")
+
+# Initializing
+LeadPara <- c()
+abstract <- c()
+
+for(i in 1 : length(pattern)){
+  dLeadPara <- str_detect(AirQualArticlesDF$lead_paragraph, pattern[i])
+  dabstract <- str_detect(AirQualArticlesDF$abstract, pattern[i])
+  
+  # Retrieving the URL, Lead Paragraph and Abstract with a matched keyword
+  a <- cbind(AirQualArticlesDF$web_url[which(dLeadPara)], 
+      AirQualArticlesDF$lead_paragraph[which(dLeadPara)])
+  b <- cbind(AirQualArticlesDF$web_url[which(dabstract)], 
+      AirQualArticlesDF$abstract[which(dabstract)])
+  
+  # Combine into one frame
+  LeadPara <- rbind(LeadPara, a)
+  abstract <- rbind(abstract, b)
+}
+
+# Idenfying the distinct search as more than one keywords could have matched resulting in duplicates
+LikelyArticles <- distinct(data.frame(rbind(LeadPara, abstract)))
+names(LikelyArticles) <- c("URL", "Exerpt")
+```
+</details>
+
+##### Likely Articles
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+kable(LikelyArticles) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "300px")
+```
+
+***
+### Conclusion
+
+In conclusion, a more refined string search in R determined that these 20 articles dicuss the topics for the specific keywords I am interested in. After skimming through a few, I am very pleased with the results as they are relevant for my upcoming project.
+
+
+
+
+
+
+
+
