@@ -8,7 +8,7 @@ A recommendation system is an information filtering system that involve predicti
 ***
 ### YouTube's Scenario Design
 ***
-<img align="left" src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%201.png" width=100 height=100> 
+<img align="left" src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%201.png" width=103 height=103> 
 
 #### Targetted Users
 YouTube.com is place for anyone from almost any where in the world. A typical user is someone between the age of 18 to 34 according to the Social Media & User-Generated Content on Statista.
@@ -17,7 +17,7 @@ YouTube.com is place for anyone from almost any where in the world. A typical us
 <img align="left" src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%202.png" width=90 height=90> 
 
 #### Key Goals
-Their key goal is to deliver favorable, personalized content to maximize the expected watch time per impression according to inferences from users' behavior such as past viewership. Simply, if a user watches a video on YouTube then the user can be said to "like" this item. This acts as a rating system. By doing this they can make the user to watch more similar videos and show ads for that specific user's viewership interest.
+Their key goal is to deliver favorable, personalized content to maximize the expected watch time per impression according to inferences from users' behavior, i.e. past viewership. Simply, if a user fully watches a video then the user can be said to "like" it. This acts as a rating system. By doing this YouTube can make the user to watch more similar videos and show ads for that specific user's viewership interest.
 ***
 
 <img align="left" src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%203.png" width=95 height=95> 
