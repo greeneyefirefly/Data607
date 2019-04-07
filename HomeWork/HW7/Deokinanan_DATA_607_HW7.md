@@ -17,7 +17,7 @@ YouTube.com is place for anyone from almost any where in the world. A typical us
 <img align="left" src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%202.png" width=90 height=90> 
 
 #### Key Goals
-Their key goal is to deliver favorable, personalized content to maximize the expected watch time per impression according to inferences from users' behavior, i.e. past viewership. This acts as a rating system. By doing this YouTube can make the user to watch more similar videos and show ads for that specific user's viewership interest.
+Their key goal is to deliver favorable, personalized content to maximize the expected watch time according to inferences from users' behavior, i.e. past viewership. This acts as a rating system. By doing this YouTube can make the user to watch more similar videos and show ads for that specific user's viewership interest.
 ***
 
 <img align="left" src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%203.png" width=95 height=95> 
