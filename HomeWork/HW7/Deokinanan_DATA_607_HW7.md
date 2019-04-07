@@ -8,7 +8,7 @@ A recommendation system is an information filtering system that involve predicti
 ***
 ### YouTube's Scenario Design
 
-<Targetted User src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%201.png" width=50% height=50%>
+<Targetted User src="https://raw.githubusercontent.com/greeneyefirefly/Data607/master/HomeWork/HW7/picture%201.png" width=100 height=100>
 
 YouTube.com is place for anyone from almost any where in the world. A typical user is someone between the age of 18 to 34 according to the Social Media & User-Generated Content on Statista.
 
