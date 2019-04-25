@@ -1,0 +1,163 @@
+---
+title: "CUNY MSDS Data 607 HW #8"
+author: "Samantha Deokinanan"
+date: "25th April, 2019"
+output:
+  html_document:
+    theme: journal
+    toc: TRUE
+    toc_float: TRUE  
+    toc_depth: 4
+---
+***
+
+### Overview
+
+In this assignment, information from a relational database, **MySQL**, is migrated to the NoSQL database called **MongoDB**. Later, there is a briefly discussion on the advantages and disadvantages of storing the data in a relational database versus a NoSQL database.
+
+***
+
+### Data Acquisition {.tabset .tabset-fade .tabset.-pills}
+
+MySQL is a relational database that allows tables to be joined together and also supports the concept of foreign keys.
+
+***
+
+#### Step 1
+
+Load the database interface and MySQL driver for R called `RMySQL`.
+
+```{r message=FALSE, warning=FALSE}
+library(RMySQL)
+```
+
+***
+
+#### Step 2
+
+Connect R to MySQL server.
+
+```{r eval=FALSE}
+mydb <- dbConnect(MySQL(), user = 'root', password='XXXXXX', dbname = 'Database name', host = 'localhost', port=3306)
+```
+
+***
+
+#### Step 3
+
+Retrieving the database and make it available in RStudio.
+
+``` {r}
+retrieved <- dbSendQuery(mydb, "SELECT * FROM shineeranking")
+dataset <- tidyr::gather(fetch(retrieved, n = -1),"rank", "value", 3:17)
+
+# The database
+library(kableExtra)
+kable(dataset) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+
+#### Step 4
+
+Close and disconnect from MySQL database.
+
+```{r warning=FALSE}
+dbDisconnect(mydb)
+```
+
+***
+
+### Database Migration {.tabset .tabset-fade .tabset.-pills}
+
+An account was made on MongoDB Atlas where a user's credentials are used to create a connection.
+
+#### Step 1
+
+Load the MongoDB client for R called `mongolite`.
+
+```{r message=FALSE, warning=FALSE}
+library(mongolite)
+```
+
+***
+
+#### Step 2
+
+Connect to MongoDB Atlas
+
+```{r eval=FALSE}
+mongofile <- mongo(collection = 'dataset', url = "mongodb+srv://<USER>:<PASSWORD>@cluster0-eurk1.mongodb.net/test")
+```
+
+#### Step 3
+
+Drop databases in the MongoDB and add the data set.
+
+```{r}
+mongofile$drop()
+mongofile$insert(dataset)
+
+kable(mongofile$find()) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+
+### Comparison {.tabset .tabset-fade .tabset.-pills}
+
+MongoDB is a document-oriented database which stores information in key-value pair. Data is stored in JSON-like documents that can have varied structures. MySQL database, on the other hand, is the most commonly used relational database management system (RDBMS). It is built on the concept of storing data in rows and tables which are further classified into the database. 
+
+The return of `true` means that the item in the data set was matched, and successful stored onto MongoDB.
+
+```{r}
+mdbdataset.df <- mongofile$find()
+
+kable(mdbdataset.df == dataset) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+***
+
+#### Advantages 
+
+Advantages of Storing Data in a Relational Database 
+
+* One of the best parts about MySQL is the JOIN operations, which makes the relational database ‘relational’.
+
+* MySQL follows the ACID (Atomic, Consistent, Isolated and Durable) model which means that once a transaction is complete, the data remains consistent and stable on the disc which may include distinct multiple memory locations.
+
+*** 
+
+Advantages of NoSQL over Relational Database 
+
+* There is more flexibility as it is a no-schema database. This adds to the benefits of auto-sharding, embedding and on-board replication which in turn provides high scalability and availability.
+
+* It offers greater efficiency and reliability since MongoDB has features like replication and gridFS. These features help to increase data availability, hence the performance is very high.
+
+***
+#### Disadvantages
+
+Disadvantages of storing Data in Relational Database 
+
+* Before storing, tables and columns should be clearly define, and also, every row in the table should have the same column. Thus, there is not much space for flexibility.
+
+* Development and deployment process is slowed down as well due to the fact that even a little modification in data model mandates the change in schema design.
+
+*** 
+Disadvantages of NoSQL over Relational Database 
+
+* MongoDB doesn’t support JOINs like a relational database. And, even if one can use joins functionality by coding it manually, it may slow execution and affect performance.
+
+* With the key-value pairs, and due to no functionality of JOINs, there is data redundancy. This results in increasing unnecessary usage of memory, on top of the already limited data size.
+
+***
+### Conclusion
+
+In conclusion, MySQL and MongoDB both have their advantages and disadvantages. If the data requires multiple row transactions or in need of a legacy application, a relational database may be the right choice. However, if in need of a more flexible, no-schema solution that can work with unstructured data, MongoDB may be the right choice. [This SIMFORM webpage](https://www.simform.com/mongodb-vs-mysql-databases/) provides an in-dept review of the differences and similarities between MySQL and MongoDB.
+
+***
